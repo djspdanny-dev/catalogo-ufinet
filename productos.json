@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "PERSONALIZADO":"002987",
+    "MARCA":"Carritech",
+    "DESCRIPCION":"GLC-BX-D-20",
+    "PRECIO":"$5,23",
+    "TIPO":"Equipo"
+  },
+  {
+    "PERSONALIZADO":"006996",
+    "MARCA":"Hioki",
+    "DESCRIPCION":"BT3554-52",
+    "PRECIO":"$4.800,00",
+    "TIPO":"Equipo"
+  },
+  {
+    "PERSONALIZADO":"001639",
+    "MARCA":"Genérica",
+    "DESCRIPCION":"Bandeja metálica para rack 19",
+    "PRECIO":"$17,55",
+    "TIPO":"Material"
+  }
+]
