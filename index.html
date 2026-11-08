@@ -3,42 +3,283 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prueba JSON</title>
-</head>
+<title>CATÁLOGO UFINET</title>
 
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,sans-serif;
+}
+
+body{
+background:#f5f7fa;
+padding:20px;
+}
+
+h1{
+text-align:center;
+color:#003366;
+margin-bottom:25px;
+}
+
+.filtros{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:20px;
+}
+
+input,select{
+padding:12px;
+border-radius:8px;
+border:1px solid #ccc;
+font-size:15px;
+}
+
+#buscar{
+flex:1;
+min-width:250px;
+}
+
+.contador{
+font-weight:bold;
+margin-bottom:20px;
+}
+
+#productos{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+gap:20px;
+}
+
+.card{
+background:white;
+border-radius:12px;
+box-shadow:0 2px 10px rgba(0,0,0,.1);
+overflow:hidden;
+}
+
+.info{
+padding:15px;
+}
+
+.tipo{
+display:inline-block;
+background:#003366;
+color:white;
+padding:4px 10px;
+border-radius:6px;
+font-size:12px;
+margin-bottom:10px;
+}
+
+.nombre{
+font-size:18px;
+font-weight:bold;
+margin-bottom:8px;
+}
+
+.codigo{
+font-size:13px;
+color:#666;
+margin-bottom:5px;
+}
+
+.marca{
+color:#0078D4;
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.precio{
+font-size:24px;
+font-weight:bold;
+color:#0c8f3a;
+}
+
+</style>
+</head>
 <body>
 
-<h1>Catálogo Ufinet</h1>
+<h1>CATÁLOGO UFINET</h1>
 
-<div id="resultado">Cargando...</div>
+<div class="filtros">
+
+<input
+id="buscar"
+type="text"
+placeholder="Buscar producto o código">
+
+<select id="tipo">
+<option value="">Todos</option>
+<option value="Equipo">Equipo</option>
+<option value="Material">Material</option>
+</select>
+
+<select id="marca">
+<option value="">Todas las marcas</option>
+</select>
+
+</div>
+
+<div id="contador" class="contador">
+Cargando...
+</div>
+
+<div id="productos"></div>
 
 <script>
 
-fetch('./productos.json')
-.then(response => response.json())
-.then(data => {
+let productos=[];
 
-document.getElementById('resultado').innerHTML =
+async function cargarProductos(){
 
-'Productos encontrados: ' + data.length +
+const respuesta =
+await fetch("./productos.json");
 
-'<br><br>' +
+productos =
+await respuesta.json();
 
-data.map(x =>
-x.DESCRIPCION +
-' - ' +
-x.MARCA
-).join('<br>');
+llenarMarcas();
 
-})
-.catch(error => {
+mostrar(productos);
 
-document.getElementById('resultado').innerHTML =
-'ERROR: ' + error;
+}
 
-console.error(error);
+function llenarMarcas(){
+
+const marcas =
+[...new Set(
+productos.map(x=>x.MARCA)
+)]
+.sort();
+
+const combo =
+document.getElementById("marca");
+
+marcas.forEach(m=>{
+
+const op =
+document.createElement("option");
+
+op.value=m;
+op.textContent=m;
+
+combo.appendChild(op);
 
 });
+
+}
+
+function mostrar(lista){
+
+document.getElementById("contador").innerHTML =
+lista.length + " productos encontrados";
+
+const cont =
+document.getElementById("productos");
+
+cont.innerHTML="";
+
+lista.forEach(p=>{
+
+cont.innerHTML += `
+
+<div class="card">
+
+<div class="info">
+
+<div class="tipo">
+${p.TIPO}
+</div>
+
+<div class="nombre">
+${p.DESCRIPCION}
+</div>
+
+<div class="codigo">
+Código: ${p.PERSONALIZADO}
+</div>
+
+<div class="marca">
+${p.MARCA}
+</div>
+
+<div class="precio">
+${p.PRECIO}
+</div>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+function filtrar(){
+
+const texto =
+document
+.getElementById("buscar")
+.value
+.toLowerCase();
+
+const tipo =
+document
+.getElementById("tipo")
+.value;
+
+const marca =
+document
+.getElementById("marca")
+.value;
+
+const resultado =
+productos.filter(p=>{
+
+return (
+
+(
+p.DESCRIPCION.toLowerCase().includes(texto)
+||
+p.PERSONALIZADO.includes(texto)
+)
+
+&&
+
+(tipo==="" || p.TIPO===tipo)
+
+&&
+
+(marca==="" || p.MARCA===marca)
+
+);
+
+});
+
+mostrar(resultado);
+
+}
+
+document
+.getElementById("buscar")
+.addEventListener("input",filtrar);
+
+document
+.getElementById("tipo")
+.addEventListener("change",filtrar);
+
+document
+.getElementById("marca")
+.addEventListener("change",filtrar);
+
+cargarProductos();
 
 </script>
 
