@@ -3,18 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>CATÁLOGO UFINET</title>
 
 <style>
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Segoe UI, Arial, sans-serif;
-}
-
 body{
+font-family:Arial,sans-serif;
 background:#f4f6f9;
 padding:20px;
 }
@@ -22,98 +17,25 @@ padding:20px;
 h1{
 text-align:center;
 color:#003366;
-margin-bottom:25px;
 }
 
-.filtros{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-bottom:25px;
-}
-
-input,select{
-padding:12px;
-border:1px solid #ccc;
-border-radius:8px;
-font-size:16px;
-}
-
-#buscar{
-flex:1;
-min-width:250px;
-}
-
-#productos{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-gap:20px;
-}
-
-.card{
+.aviso{
 background:white;
-border-radius:12px;
-overflow:hidden;
-box-shadow:0 2px 8px rgba(0,0,0,.1);
-transition:.2s;
+padding:20px;
+border-radius:10px;
+max-width:800px;
+margin:auto;
+box-shadow:0 0 10px rgba(0,0,0,.1);
 }
 
-.card:hover{
-transform:translateY(-3px);
-}
-
-.imagen{
-height:220px;
-display:flex;
-align-items:center;
-justify-content:center;
-background:#f0f0f0;
-font-size:14px;
-color:#777;
-}
-
-.info{
-padding:15px;
-}
-
-.tipo{
+a{
 display:inline-block;
+padding:15px 25px;
 background:#003366;
 color:white;
-padding:4px 10px;
-border-radius:5px;
-font-size:12px;
-margin-bottom:10px;
-}
-
-.nombre{
-font-size:18px;
-font-weight:bold;
-margin-bottom:10px;
-}
-
-.marca{
-color:#0078D4;
-font-weight:bold;
-margin-bottom:6px;
-}
-
-.codigo{
-color:#777;
-font-size:13px;
-}
-
-.precio{
-margin-top:10px;
-font-size:22px;
-font-weight:bold;
-color:#0b8f35;
-}
-
-.contador{
-margin-bottom:15px;
-font-weight:bold;
-color:#555;
+text-decoration:none;
+border-radius:8px;
+margin-top:20px;
 }
 
 </style>
@@ -123,241 +45,23 @@ color:#555;
 
 <h1>CATÁLOGO UFINET</h1>
 
-<div class="filtros">
+<div class="aviso">
 
-<input
-id="buscar"
-type="text"
-placeholder="Buscar por descripción o código">
+<h2>Catálogo en construcción</h2>
 
-<select id="tipo">
-<option value="">Todos</option>
-<option value="Equipo">Equipo</option>
-<option value="Material">Material</option>
-</select>
+<p>
+El archivo de productos ya está cargado en GitHub.
+</p>
 
-<select id="marca">
-<option value="">Todas las marcas</option>
-</select>
+<p>
+Descargar catálogo:
+</p>
 
-</div>
-
-<div class="contador" id="contador">
-Cargando productos...
-</div>
-
-<div id="productos"></div>
-
-<script>
-
-const URL_EQUIPO =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vSPAO4ozS0SV5dVYgnXjFYc4PuglWsgdS9-L8OTkCpmNm0W3UI40pRurBxjeDB5rw/pub?gid=728943862&single=true&output=csv";
-
-const URL_MATERIAL =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vSPAO4ozS0SV5dVYgnXjFYc4PuglWsgdS9-L8OTkCpmNm0W3UI40pRurBxjeDB5rw/pub?gid=1402193486&single=true&output=csv";
-
-let productos = [];
-
-async function leerCSV(url,tipo){
-
-const texto = await fetch(url).then(r=>r.text());
-
-const lineas = texto.trim().split("\n");
-
-const datos = [];
-
-for(let i=1;i<lineas.length;i++){
-
-const fila = lineas[i];
-
-const campos =
-fila.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-
-if(!campos) continue;
-
-datos.push({
-
-PERSONALIZADO:(campos[0]||"").replace(/"/g,"").trim(),
-MARCA:(campos[1]||"").replace(/"/g,"").trim(),
-DESCRIPCION:(campos[2]||"").replace(/"/g,"").trim(),
-PRECIO:(campos[3]||"").replace(/"/g,"").trim(),
-IMAGEN:(campos[4]||"").replace(/"/g,"").trim(),
-TIPO:tipo
-
-});
-
-}
-
-return datos;
-
-}
-
-async function cargarDatos(){
-
-try{
-
-const equipo =
-await leerCSV(URL_EQUIPO,"Equipo");
-
-const material =
-await leerCSV(URL_MATERIAL,"Material");
-
-productos = [...equipo,...material];
-
-cargarMarcas();
-
-mostrar(productos);
-
-}catch(error){
-
-document.getElementById("contador").innerHTML =
-"Error al cargar los datos";
-
-console.error(error);
-
-}
-
-}
-
-function cargarMarcas(){
-
-const marcas = [...new Set(
-
-productos
-.map(x=>x.MARCA)
-.filter(x=>x)
-
-)].sort();
-
-const select =
-document.getElementById("marca");
-
-marcas.forEach(m=>{
-
-const op =
-document.createElement("option");
-
-op.value=m;
-op.textContent=m;
-
-select.appendChild(op);
-
-});
-
-}
-
-function mostrar(lista){
-
-const contenedor =
-document.getElementById("productos");
-
-document.getElementById("contador").innerHTML =
-
-lista.length + " productos encontrados";
-
-contenedor.innerHTML="";
-
-lista.forEach(p=>{
-
-contenedor.innerHTML += `
-
-<div class="card">
-
-<div class="imagen">
-
-${p.IMAGEN
-? `<img src="${p.IMAGEN}" style="width:100%;height:100%;object-fit:cover;">`
-: 'Sin imagen'}
+<a href="./CATALOGO%20UFINET%201.0.xlsx">
+Abrir Excel
+</a>
 
 </div>
-
-<div class="info">
-
-<div class="tipo">${p.TIPO}</div>
-
-<div class="nombre">
-${p.DESCRIPCION}
-</div>
-
-<div class="codigo">
-Código: ${p.PERSONALIZADO}
-</div>
-
-<div class="marca">
-${p.MARCA}
-</div>
-
-<div class="precio">
-${p.PRECIO}
-</div>
-
-</div>
-
-</div>
-
-`;
-
-});
-
-}
-
-function filtrar(){
-
-const texto =
-document.getElementById("buscar")
-.value
-.toLowerCase();
-
-const tipo =
-document.getElementById("tipo")
-.value;
-
-const marca =
-document.getElementById("marca")
-.value;
-
-const resultado =
-productos.filter(p=>{
-
-return(
-
-(
-p.DESCRIPCION.toLowerCase().includes(texto)
-||
-p.PERSONALIZADO.includes(texto)
-)
-
-&&
-
-(tipo==="" || p.TIPO===tipo)
-
-&&
-
-(marca==="" || p.MARCA===marca)
-
-);
-
-});
-
-mostrar(resultado);
-
-}
-
-document
-.getElementById("buscar")
-.addEventListener("input",filtrar);
-
-document
-.getElementById("tipo")
-.addEventListener("change",filtrar);
-
-document
-.getElementById("marca")
-.addEventListener("change",filtrar);
-
-cargarDatos();
-
-</script>
 
 </body>
 </html>
