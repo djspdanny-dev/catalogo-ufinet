@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CATÁLOGO UFINET</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,sans-serif}
+:root{--bg:#f5f7fa;--card:#fff;--text:#222;--primary:#003366}
+body.dark{--bg:#121212;--card:#1e1e1e;--text:#f2f2f2;--primary:#4da3ff}
+body{background:var(--bg);color:var(--text);padding:20px}
+h1{text-align:center;color:var(--primary);margin-bottom:25px}
+.topbar{display:flex;justify-content:flex-end;gap:10px;margin-bottom:15px}
+.filtros{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+input,select{padding:12px;border-radius:8px;border:1px solid #ccc;font-size:15px}
+#buscar{flex:1;min-width:250px}.contador{font-size:18px;font-weight:bold;margin-bottom:20px}
+#productos{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.card{background:var(--card);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);transition:.2s;position:relative}
+.card:hover{transform:translateY(-3px)}.info{padding:15px}.tipo{display:inline-block;background:var(--primary);color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;margin-bottom:10px}.nombre{font-size:18px;font-weight:bold;margin-bottom:8px}.codigo{color:#666;font-size:13px;margin-bottom:5px}.marca{color:#0078D4;font-weight:bold;margin-bottom:10px}.precio{font-size:24px;font-weight:bold;color:#11823b}.fav{position:absolute;top:10px;right:10px;font-size:22px;cursor:pointer}.imgprev{height:100px;background:#e9e9e9;border-radius:8px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;overflow:hidden}.imgprev img{max-width:100%;max-height:100%}.paginacion{margin-top:30px;display:flex;justify-content:center;gap:10px;align-items:center}button{padding:10px 15px;border:none;border-radius:8px;background:var(--primary);color:#fff;cursor:pointer}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7)}.modal-content{background:var(--card);color:var(--text);max-width:700px;margin:5% auto;padding:20px;border-radius:12px}.bigimg{height:250px;background:#e9e9e9;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:15px}.bigimg img{max-width:100%;max-height:100%}
+</style>
+</head><body>
+<div class="topbar"><button id="temaBtn">🌙 Tema</button></div>
+<h1>CATÁLOGO UFINET</h1>
+<div class="filtros">
+<input id="buscar" type="text" placeholder="Buscar producto o código">
+<select id="tipo"><option value="">Todos</option><option value="Equipo">Equipo</option><option value="Material">Material</option></select>
+<select id="marca"><option value="">Todas las marcas</option></select>
+<select id="favoritos"><option value="todos">Todos</option><option value="fav">⭐ Favoritos</option></select>
+</div>
+<div id="contador" class="contador">Cargando catálogo...</div><div id="productos"></div>
+<div class="paginacion"><button id="anterior">◀ Anterior</button><span id="paginaActual"></span><button id="siguiente">Siguiente ▶</button></div>
+<div id="modal" class="modal"><div class="modal-content"><div id="detalle"></div><button onclick="cerrarModal()">Cerrar</button></div></div>
+<script>
+let productos=[],productosFiltrados=[],pagina=1;const porPagina=50;let favs=JSON.parse(localStorage.getItem('favoritosUfinet')||'[]');
+if(localStorage.getItem('temaUfinet')==='oscuro')document.body.classList.add('dark');
+document.getElementById('temaBtn').onclick=()=>{document.body.classList.toggle('dark');localStorage.setItem('temaUfinet',document.body.classList.contains('dark')?'oscuro':'claro')};
+async function cargarProductos(){const r=await fetch('./productos.json');productos=await r.json();productosFiltrados=productos;llenarMarcas();mostrar()} 
+function llenarMarcas(){const c=document.getElementById('marca');[...new Set(productos.map(x=>x.MARCA))].sort().forEach(m=>{let o=document.createElement('option');o.value=m;o.textContent=m;c.appendChild(o);})}
+function toggleFav(c){favs=favs.includes(c)?favs.filter(x=>x!==c):[...favs,c];localStorage.setItem('favoritosUfinet',JSON.stringify(favs));mostrar()}
+function mostrar(){const datos=productosFiltrados.slice((pagina-1)*porPagina,(pagina-1)*porPagina+porPagina);document.getElementById('contador').textContent=productosFiltrados.length.toLocaleString('es-ES')+' productos encontrados';let html='';datos.forEach(p=>{html+=`<div class='card'><div class='fav' onclick="toggleFav('${p.PERSONALIZADO}')">${favs.includes(p.PERSONALIZADO)?'⭐':'☆'}</div><div class='info'><div class='imgprev'><img src='imagenes/${p.PERSONALIZADO}.jpg' onerror="this.parentElement.innerHTML='📷 Imagen no disponible'"></div><div class='tipo'>${p.TIPO}</div><div class='nombre'>${p.DESCRIPCION}</div><div class='codigo'>Código: ${p.PERSONALIZADO}</div><div class='marca'>${p.MARCA}</div><div class='precio'>${p.PRECIO}</div><br><button onclick="verDetalle('${p.PERSONALIZADO}')">Ver detalle</button></div></div>`});document.getElementById('productos').innerHTML=html;const tp=Math.max(1,Math.ceil(productosFiltrados.length/porPagina));paginaActual.textContent=`Página ${pagina} de ${tp}`}
+function filtrar(){const t=buscar.value.toLowerCase(),tipo=tipoSel.value,marca=marcaSel.value,fav=favoritos.value;productosFiltrados=productos.filter(p=>(p.DESCRIPCION.toLowerCase().includes(t)||String(p.PERSONALIZADO).includes(t))&&(tipo===''||p.TIPO===tipo)&&(marca===''||p.MARCA===marca)&&(fav!=='fav'||favs.includes(p.PERSONALIZADO)));pagina=1;mostrar()}
+function verDetalle(c){const p=productos.find(x=>x.PERSONALIZADO==c);detalle.innerHTML=`<div class='bigimg'><img src='imagenes/${p.PERSONALIZADO}.jpg' onerror="this.parentElement.innerHTML='📷 Imagen no disponible'"></div><h2>${p.DESCRIPCION}</h2><p><b>Código:</b> ${p.PERSONALIZADO}</p><p><b>Marca:</b> ${p.MARCA}</p><p><b>Tipo:</b> ${p.TIPO}</p><p><b>Precio:</b> ${p.PRECIO}</p><br><button onclick="toggleFav('${p.PERSONALIZADO}')">⭐ Favorito</button>`;modal.style.display='block'}
+function cerrarModal(){modal.style.display='none'}
+buscar.oninput=filtrar;const tipoSel=document.getElementById('tipo'),marcaSel=document.getElementById('marca');tipoSel.onchange=filtrar;marcaSel.onchange=filtrar;favoritos.onchange=filtrar;anterior.onclick=()=>{if(pagina>1){pagina--;mostrar()}};siguiente.onclick=()=>{if(pagina<Math.ceil(productosFiltrados.length/porPagina)){pagina++;mostrar()}};cargarProductos();
+</script></body></html>
