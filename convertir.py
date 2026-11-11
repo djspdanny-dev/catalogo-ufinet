@@ -3,6 +3,7 @@ import json
 
 archivo = "CATALOGO UFINET 1.0.xlsx"
 
+# Leer hojas
 equipo = pd.read_excel(
     archivo,
     sheet_name="EQUIPO"
@@ -13,14 +14,17 @@ material = pd.read_excel(
     sheet_name="MATERIAL"
 )
 
+# Agregar tipo
 equipo["TIPO"] = "Equipo"
 material["TIPO"] = "Material"
 
+# Unir hojas
 df = pd.concat([
     equipo,
     material
 ])
 
+# Eliminar duplicados
 df = df.drop_duplicates(
     subset=[
         "PERSONALIZADO",
@@ -41,6 +45,19 @@ for _, r in df.iterrows():
             r["PERSONALIZADO"]
         )
 
+    try:
+        precio = float(
+            r["PRECIO UNITARIO"]
+        )
+
+        precio_formateado = (
+            "$" +
+            "{:,.2f}".format(precio)
+        )
+
+    except:
+        precio_formateado = "$0.00"
+
     productos.append({
 
         "PERSONALIZADO":
@@ -53,7 +70,7 @@ for _, r in df.iterrows():
         str(r["DESCRIPCION"]),
 
         "PRECIO":
-"${:,.2f}".format(float(r["PRECIO UNITARIO"]))
+        precio_formateado,
 
         "TIPO":
         str(r["TIPO"])
@@ -76,4 +93,3 @@ with open(
 print(
     f"Se generaron {len(productos)} productos"
 )
-
