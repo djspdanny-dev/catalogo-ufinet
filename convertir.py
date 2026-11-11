@@ -53,7 +53,7 @@ for _, r in df.iterrows():
         str(r["DESCRIPCION"]),
 
         "PRECIO":
-        str(r["PRECIO UNITARIO"]),
+"${:,.2f}".format(float(r["PRECIO UNITARIO"]))
 
         "TIPO":
         str(r["TIPO"])
