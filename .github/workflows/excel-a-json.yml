@@ -3,7 +3,7 @@ name: Actualizar Catalogo
 on:
   push:
     paths:
-      - 'CATALOGO UFINET 1.0.xlsx'
+      - 'CATÁLOGO UFINET 1.0.xlsx'
 
 jobs:
   actualizar:
@@ -35,6 +35,4 @@ jobs:
 
           git diff --staged --quiet || git commit -m "Actualización automática catálogo"
 
-          git pull origin main --rebase
-
-          git push origin HEAD:main
+          git push
