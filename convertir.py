@@ -27,7 +27,17 @@ df = pd.concat([
 # Limpiar nombres de columnas
 df.columns = df.columns.str.strip()
 
-# Eliminar duplicados solo por código
+# Detectar columna descripción
+if "DESCRIPCIÓN" in df.columns:
+    col_desc = "DESCRIPCIÓN"
+elif "DESCRIPCION" in df.columns:
+    col_desc = "DESCRIPCION"
+else:
+    raise Exception(
+        f"No se encontró columna de descripción. Columnas encontradas: {list(df.columns)}"
+    )
+
+# Eliminar duplicados
 df = df.drop_duplicates(
     subset=[
         "PERSONALIZADO"
@@ -69,7 +79,7 @@ for _, r in df.iterrows():
         str(r["MARCA"]),
 
         "DESCRIPCION":
-        str(r["DESCRIPCIÓN"]),
+        str(r[col_desc]),
 
         "PRECIO":
         precio_formateado,
