@@ -28,10 +28,10 @@ df = pd.concat([
 df = df.drop_duplicates(
     subset=[
         "PERSONALIZADO",
-        "DESCRIPCION"
+        "DESCRIPCIÓN"
     ]
 )
-print(df.columns.tolist())
+
 productos = []
 
 for _, r in df.iterrows():
