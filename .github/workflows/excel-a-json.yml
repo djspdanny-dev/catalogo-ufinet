@@ -5,6 +5,8 @@ on:
     paths:
       - 'CATÁLOGO UFINET 1.0.xlsx'
 
+  workflow_dispatch:
+
 jobs:
   actualizar:
     runs-on: ubuntu-latest
