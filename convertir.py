@@ -1,7 +1,7 @@
 import pandas as pd
 import json
 
-archivo = "CATÁLOGO UFINET 1.0.xlsx"
+archivo = "catalogo.xlsx"
 
 # Leer hojas
 equipo = pd.read_excel(
