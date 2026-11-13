@@ -1,7 +1,7 @@
 import pandas as pd
 import json
 
-archivo = "CATALOGO UFINET 1.0.xlsx"
+archivo = "CATÁLOGO UFINET 1.0.xlsx"
 
 # Leer hojas
 equipo = pd.read_excel(
@@ -28,7 +28,7 @@ df = pd.concat([
 df = df.drop_duplicates(
     subset=[
         "PERSONALIZADO",
-        "DESCRIPCION"
+        "DESCRIPCIÓN"
     ]
 )
 
@@ -67,13 +67,16 @@ for _, r in df.iterrows():
         str(r["MARCA"]),
 
         "DESCRIPCION":
-        str(r["DESCRIPCION"]),
+        str(r["DESCRIPCIÓN"]),
 
         "PRECIO":
         precio_formateado,
 
         "TIPO":
-        str(r["TIPO"])
+        str(r["TIPO"]),
+
+        "IMAGEN":
+        str(r["IMAGEN"]) if pd.notna(r["IMAGEN"]) else ""
 
     })
 
