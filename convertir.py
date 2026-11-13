@@ -24,11 +24,13 @@ df = pd.concat([
     material
 ])
 
-# Eliminar duplicados
+# Limpiar nombres de columnas
+df.columns = df.columns.str.strip()
+
+# Eliminar duplicados solo por código
 df = df.drop_duplicates(
     subset=[
-        "PERSONALIZADO",
-        "DESCRIPCIÓN"
+        "PERSONALIZADO"
     ]
 )
 
