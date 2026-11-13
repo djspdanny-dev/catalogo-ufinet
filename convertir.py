@@ -26,12 +26,12 @@ df = pd.concat([
 
 # Eliminar duplicados
 df = df.drop_duplicates(
- subset=[
-    "PERSONALIZADO",
-    "DESCRIPCION"
-]
+    subset=[
+        "PERSONALIZADO",
+        "DESCRIPCION"
+    ]
 )
-
+print(df.columns.tolist())
 productos = []
 
 for _, r in df.iterrows():
